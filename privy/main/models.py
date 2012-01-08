@@ -22,8 +22,8 @@ class TimeStampedModel(models.Model):
 """
 
 class NamedDatedContent(TimeStampedContent):
-    name = models.CharField(max_length = 255)
-    description = models.TextField(null = True, blank = True)
+    name = models.CharField(max_length=255)
+    description = models.TextField(null=True, blank=True)
 
     def save(self):
         super(NamedDatedContent, self).save()
@@ -48,7 +48,7 @@ class PrivyContent(NamedDatedContent):
 
 class Post(PrivyContent):
     board = models.ForeignKeyField(blank=True, null=True)
-    source_link = models.TextField() 
+    source_link = models.TextField(blank=True, null=True) 
     creator = models.ForeignKeyField()
     locale = models.ForeignKeyField()
 
