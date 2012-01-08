@@ -57,9 +57,12 @@ function createBoard() {
       visible: false,
     })
     infoWindow.open(map, marker);
+    google.maps.event.addListener(infoWindow, 'closeclick', function(event) {
+      pendingCircle.setMap(null);
+      $("#select_board").show();
+    });
     pendingCircle.setEditable(false);
     $("#done_editing").hide();
-    doneEditing = function() { }
   }
 }
 </script>
