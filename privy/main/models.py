@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import *
 
 """
     Defines an abstract model with timestamps for creation and modification.
