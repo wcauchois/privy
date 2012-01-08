@@ -3,6 +3,7 @@
 {% block head %}
 <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyBABORh_FwIuw1Txbksp7VSy4gkdOVPc4M&sensor=false"></script>
 <script type="text/javascript">
+var map;
 $(document).ready(function() {
   var seattle = new google.maps.LatLng(47.60621, -122.332071);
   var options = {
@@ -10,7 +11,7 @@ $(document).ready(function() {
     zoom: 8,
     mapTypeId: google.maps.MapTypeId.ROADMAP
   };
-  var map = new google.maps.Map(document.getElementById("map_canvas"), options);
+  map = new google.maps.Map(document.getElementById("map_canvas"), options);
   new google.maps.Circle({
     strokeColor: "#FF0000",
     strokeOpacity: 0.8,
@@ -20,60 +21,52 @@ $(document).ready(function() {
     map: map,
     center: seattle,
     radius: 50000,
+  });
+  $("#done_editing").hide();
+});
+var doneEditing = function() { }
+function createBoard() {
+  $("#select_board").hide();
+  $("#done_editing").show();
+  var pendingCircle = new google.maps.Circle({
+    strokeColor: '#0000FF',
+    strokeOpacity: 0.8,
+    strokeWeight: 2,
+    fillColor: "#0000FF",
+    fillOpacity: 0.35,
+    map: map,
+    center: map.getCenter(),
+    radius: 20000, /* TODO: make radius dynamic */
     editable: true,
   });
-  $("#overlay_canvas").hide();
-});
-function distanceBetween(a, b) {
-  return Math.sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
-}
-function createBoard() {
-  var overlayCanvas = $("#overlay_canvas");
-  overlayCanvas.show();
-  var center = null;
-  function getPosFromEvent(e) {
-    var parentOffset = overlayCanvas.parent().offset();
-    var relX = e.pageX - parentOffset.left;
-    var relY = e.pageY - parentOffset.top;
-    return { x: relX - 70 /* because of the margin-left */, y: relY };
+  doneEditing = function() {
+    var contentString = 'Enter a name for the new board:';
+    contentString += '<form method="POST" action="/new_board">';
+    contentString += '<input type="text" name="name" /><br>';
+    contentString += '<input type="submit" class="btn primary" value="Create" style="margin-top: 10px;" />';
+    contentString += '<input type="hidden" name="lat" value="'+pendingCircle.getCenter().lat()+'" />';
+    contentString += '<input type="hidden" name="lng" value="'+pendingCircle.getCenter().lng()+'" />';
+    contentString += '<input type="hidden" name="radius" value="'+pendingCircle.getRadius()+'" />';
+    contentString += '</form>';
+    var infoWindow = new google.maps.InfoWindow({
+      content: contentString
+    });
+    var marker = new google.maps.Marker({
+      position: pendingCircle.getCenter(),
+      map: map,
+      visible: false,
+    })
+    infoWindow.open(map, marker);
+    pendingCircle.setEditable(false);
+    $("#done_editing").hide();
+    doneEditing = function() { }
   }
-  function onMouseDown(e) {
-    center = getPosFromEvent(e);
-  }
-  function onMouseUp(e) {
-    var ctx = overlayCanvas[0].getContext('2d');
-    ctx.clearRect(0, 0, 800, 600);
-    overlayCanvas.hide();
-    overlayCanvas.unbind('mousedown', onMouseDown);
-    overlayCanvas.unbind('mouseup', onMouseUp);
-    overlayCanvas.unbind('mousemove', onMouseMove);
-  }
-  function onMouseMove(e) {
-    if(center != null) {
-      var ctx = overlayCanvas[0].getContext('2d');
-      var radius = distanceBetween(getPosFromEvent(e), center);
-      ctx.clearRect(0, 0, 800, 600);
-      ctx.fillStyle = 'rgba(0, 0, 255, 0.35)';
-      ctx.strokeStyle = 'rgba(0, 0, 255, 0.8)';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(center.x, center.y, radius, 0, Math.PI * 2);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
-    }
-  }
-  overlayCanvas.mousedown(onMouseDown);
-  overlayCanvas.mouseup(onMouseUp);
-  overlayCanvas.mousemove(onMouseMove);
 }
 </script>
 <style type="text/css">
 #map_canvas {
   margin-top: 50px;
   margin-left: 70px;
-}
-#map_canvas, #overlay_canvas {
   width: 800px;
   height: 600px;
 }
@@ -81,14 +74,16 @@ function createBoard() {
 {% endblock %}
 
 {% block content %}
-<div style="position: relative; left: 0; top: 0;">
-  <div id="map_canvas" style="position: relative; top: 0; left: 0;"></div>
-  <canvas id="overlay_canvas" width="800" height="600"
-          style="position: absolute; top: 0; left: 70px;"></canvas>
-</div>
+<div id="map_canvas" style="position: relative; top: 0; left: 0;"></div>
 
 <div style="text-align: center; margin-top: 10px;">
-Select a message board by clicking a circle, or 
-<input type="submit" class="btn primary" value="Create a board" onclick="createBoard();" />
+  <div id="select_board">
+    Select a message board by clicking a circle, or 
+    <input type="submit" class="btn primary" value="Create a board" onclick="createBoard();" />
+  </div>
+  <div id="done_editing">
+    Modify the blue circle above, then click here:
+    <input type="submit" class="btn primary" value="Done editing" onclick="doneEditing();" />
+  </div>
 </div>
 {% endblock %}
