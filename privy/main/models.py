@@ -22,7 +22,7 @@ class TimeStampedModel(models.Model):
     Named, dated content.
 """
 
-class NamedDatedContent(TimeStampedContent):
+class NamedDatedContent(TimeStampedModel):
     name = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
 
