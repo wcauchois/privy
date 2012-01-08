@@ -47,10 +47,10 @@ class PrivyContent(NamedDatedContent):
 """
 
 class Post(PrivyContent):
-    board = models.ForeignKeyField(blank=True, null=True)
+    board = models.ForeignKey(blank=True, null=True)
     source_link = models.TextField(blank=True, null=True) 
-    creator = models.ForeignKeyField()
-    locale = models.ForeignKeyField()
+    creator = models.ForeignKey()
+    locale = models.ForeignKey()
 
     def __unicode__(self):
         return "[id: '%s', name: '%s']" % (self.id, self.name[:27] +'...') 
@@ -66,11 +66,11 @@ class Locale(PrivyContent):
     radius = models.DecimalField(max_digits=15, decimal_places=5)
     center_x = models.DecimalField(max_digits=15, decimal_place=5)
     center_y = models.DecimalField(max_digits=15, decimal_place=5)
-    creator = models.ForeignKeyField()
-    # institution = models.ForeignKeyField(null=True, blank=True)
+    creator = models.ForeignKey()
+    # institution = models.ForeignKey(null=True, blank=True)
 
 """
     Alias
 """ 
 class Alias(PrivyContent):
-    # institution = models.ForeignKeyField(null=True, blank=True)
+    # institution = models.ForeignKey(null=True, blank=True)
