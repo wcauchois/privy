@@ -4,6 +4,113 @@
 <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyBABORh_FwIuw1Txbksp7VSy4gkdOVPc4M&sensor=false"></script>
 <script type="text/javascript">
 var map;
+var boardsDirty = true;
+var currentBoards = []; /* a list of boards that are currently being displayed */
+var baseCircleParams = {
+  strokeColor: "#FF0000",
+  strokeOpacity: 0.8,
+  strokeWeight: 2,
+  fillColor: "#FF0000",
+  fillOpacity: 0.35,
+};
+/* courtesy of <http://stackoverflow.com/questions/1714786/querystring-encoding-of-a-javascript-object> */
+function queryEncode(obj) {
+  var str = [];
+  for(var p in obj)
+     str.push(p + "=" + encodeURIComponent(obj[p]));
+  return str.join("&");
+}
+/* i'm a whore for stack overflow: <http://stackoverflow.com/questions/171251/how-can-i-merge-properties-of-two-javascript-objects-dynamically> */
+function mergeOptions(obj1, obj2){
+  var obj3 = {};
+  for(var attrname in obj1) { obj3[attrname] = obj1[attrname]; }
+  for(var attrname in obj2) { obj3[attrname] = obj2[attrname]; }
+  return obj3;
+}
+
+/* TODO: migrate to its own js file */
+var set = (function() {
+  function intersectionOrDifference(inverter) {
+    /* precondition: list1 and list2 don't contain any duplicates */
+    return function(list1, list2, keyFunc1, keyFunc2) {
+      function id(x) { return x; }
+      keyFunc1 = (keyFunc1 == undefined) ? id : keyFunc1;
+      keyFunc2 = (keyFunc2 == undefined) ? id : keyFunc2;
+      var list3 = [];
+      for(var i = 0; i < list1.length; i++) {
+        var foundIt = false;
+        for(var j = 0; j < list2.length; j++) {
+          if(keyFunc1(list1[i]) == keyFunc2(list2[j])) {
+            foundIt = true;
+            break;
+          }
+        }
+        if(inverter(foundIt))
+          list3.push(list1[i]);
+      }
+      return list3;
+    };
+  }
+  return {
+    intersection: intersectionOrDifference(function(x) { return x; }),
+    difference:   intersectionOrDifference(function(x) { return !x; }),
+  };
+})();
+
+function openInfoWindowOnInvisibleMarker(infoWindow, latLng) {
+  var marker = new google.maps.Marker({
+    position: latLng,
+    map: map,
+    visible: false,
+  });
+  infoWindow.open(map, marker);
+}
+
+function boardInfoWindowOpener(boardData, centerOn) {
+  return function() {
+    var contentString = '<span class="board_title">'+boardData.name+'</span>';
+    contentString += '<br><a href="/show_board/'+boardData.id+'">Visit this board →</a>';
+    var infoWindow = new google.maps.InfoWindow({
+      content: contentString
+    });
+    openInfoWindowOnInvisibleMarker(infoWindow, centerOn);
+  }
+}
+
+function updateBoards() {
+  if(boardsDirty) {
+    var url = '/get_boards?' + queryEncode({
+      left: map.getBounds().getNorthEast().lng(),
+      right: map.getBounds().getSouthWest().lng(),
+      top: map.getBounds().getNorthEast().lat(),
+      bottom: map.getBounds().getSouthWest().lat()
+    });
+    $.getJSON(url, function(data) {
+      function x_board_id(x) { return x.board.id; }
+      function x_id(x) { return x.id; }
+
+      var keepers = set.intersection(currentBoards, data, x_board_id, x_id);
+      var losers = set.difference(currentBoards, data, x_board_id, x_id);
+      var newbies = set.difference(data, currentBoards, x_id, x_board_id);
+
+      for(var i = 0; i < losers.length; i++)
+        losers[i].circle.setMap(null);
+      currentBoards = keepers;
+      for(var i = 0; i < newbies.length; i++) {
+        var circle = new google.maps.Circle(mergeOptions(baseCircleParams, {
+          map: map,
+          center: new google.maps.LatLng(newbies[i].lat, newbies[i].lng),
+          radius: newbies[i].radius
+        }));
+        var boardName = newbies[i].name;
+        google.maps.event.addListener(circle, 'click',
+          boardInfoWindowOpener(newbies[i], circle.getCenter()));
+        currentBoards.push({ board: newbies[i], circle: circle });
+      }
+    });
+    boardsDirty = false;
+  }
+}
 $(document).ready(function() {
   var seattle = new google.maps.LatLng(47.60621, -122.332071);
   var options = {
@@ -12,33 +119,25 @@ $(document).ready(function() {
     mapTypeId: google.maps.MapTypeId.ROADMAP
   };
   map = new google.maps.Map(document.getElementById("map_canvas"), options);
-  new google.maps.Circle({
-    strokeColor: "#FF0000",
-    strokeOpacity: 0.8,
-    strokeWeight: 2,
-    fillColor: "#FF0000",
-    fillOpacity: 0.35,
-    map: map,
-    center: seattle,
-    radius: 50000,
-  });
+  function markDirty() { boardsDirty = true; }
+  google.maps.event.addListener(map, 'center_changed', markDirty);
+  google.maps.event.addListener(map, 'bounds_changed', markDirty);
+  window.setInterval(updateBoards, 2000);
+  google.maps.event.addListener(map, 'tilesloaded', updateBoards);
   $("#done_editing").hide();
 });
-var doneEditing = function() { }
+var doneEditing = null;
 function createBoard() {
   $("#select_board").hide();
   $("#done_editing").show();
-  var pendingCircle = new google.maps.Circle({
+  var pendingCircle = new google.maps.Circle(mergeOptions(baseCircleParams, {
     strokeColor: '#0000FF',
-    strokeOpacity: 0.8,
-    strokeWeight: 2,
     fillColor: "#0000FF",
-    fillOpacity: 0.35,
     map: map,
     center: map.getCenter(),
     radius: 20000, /* TODO: make radius dynamic */
     editable: true,
-  });
+  }));
   doneEditing = function() {
     var contentString = 'Enter a name for the new board:';
     contentString += '<form method="POST" action="/new_board">';
@@ -51,12 +150,7 @@ function createBoard() {
     var infoWindow = new google.maps.InfoWindow({
       content: contentString
     });
-    var marker = new google.maps.Marker({
-      position: pendingCircle.getCenter(),
-      map: map,
-      visible: false,
-    })
-    infoWindow.open(map, marker);
+    openInfoWindowOnInvisibleMarker(infoWindow, pendingCircle.getCenter());
     google.maps.event.addListener(infoWindow, 'closeclick', function(event) {
       pendingCircle.setMap(null);
       $("#select_board").show();
@@ -67,6 +161,10 @@ function createBoard() {
 }
 </script>
 <style type="text/css">
+.board_title {
+  font-weight: bold;
+  font-size: 1.2em;
+}
 #map_canvas {
   margin-top: 50px;
   margin-left: 70px;
