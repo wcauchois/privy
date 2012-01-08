@@ -1,77 +1,18 @@
 from django.db import models
 from datetime import *
 
-"""
-    Defines an abstract model with timestamps for creation and modification.
-"""
-class TimeStampedModel(models.Model):
-    date_created = models.DateTimeField(editable=False)
-    date_modified = models.DateTimeField(editable=False)
+class Locale(models.Model):
+  radius = models.DecimalField(max_digits=15, decimal_places=5)
+  center_x = models.DecimalField(max_digits=15, decimal_places=5)
+  center_y = models.DecimalField(max_digits=15, decimal_places=5)
 
-    def save(self):
-        if self.date_created == None:
-            self.date_created = datetime.now()
-        self.date_modified = datetime.now()
-        super(TimeStampedModel, self).save()
+class Post(models.Model):
+  locale = models.ForeignKey(Locale, blank=False)
+  date_created = models.DateTimeField(editable=False)
+  content = models.TextField(null=True, blank=False)
 
-    class Meta:
-        abstract = True
-
-
-"""
-    Named, dated content.
-"""
-
-class NamedDatedContent(TimeStampedModel):
-    name = models.CharField(max_length=255)
-    description = models.TextField(null=True, blank=True)
-
-    def save(self):
-        super(NamedDatedContent, self).save()
-
-    class Meta:
-        abstract = True
-
-
-class PrivyContent(NamedDatedContent):
-    connection_name = 'privy_content'
-
-    def save(self):
-        super(PrivyContent, self).save()
-
-    class Meta:
-        abstract = True
-
-
-"""
-    Alias
-""" 
-class Alias(PrivyContent):
-  pass
-    # institution = models.ForeignKey(null=True, blank=True)
-
-"""
-    Locale
-"""
-class Locale(PrivyContent):
-    radius = models.DecimalField(max_digits=15, decimal_places=5)
-    center_x = models.DecimalField(max_digits=15, decimal_places=5)
-    center_y = models.DecimalField(max_digits=15, decimal_places=5)
-    creator = models.ForeignKey(Alias)
-    # institution = models.ForeignKey(null=True, blank=True)
-
-"""
-    Post
-"""
-
-class Post(PrivyContent):
-    locale = models.ForeignKey(Locale)
-    source_link = models.TextField(blank=True, null=True) 
-    creator = models.ForeignKey(Alias)
-
-    def __unicode__(self):
-        return "[id: '%s', name: '%s']" % (self.id, self.name[:27] +'...') 
-
-    class Meta:
-        db_table = 'dashboard_dashboard';
+  def save(self):
+    if self.date_created == None:
+      self.date_created = datetime.now()
+    super(Post, self).save()
 
