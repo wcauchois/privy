@@ -19,10 +19,14 @@ $(document).ready(function() {
     fillOpacity: 0.35,
     map: map,
     center: seattle,
-    radius: 50000
+    radius: 50000,
+    editable: true,
   });
   $("#overlay_canvas").hide();
 });
+function distanceBetween(a, b) {
+  return Math.sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
+}
 function createBoard() {
   var overlayCanvas = $("#overlay_canvas");
   overlayCanvas.show();
@@ -33,10 +37,35 @@ function createBoard() {
     var relY = e.pageY - parentOffset.top;
     return { x: relX - 70 /* because of the margin-left */, y: relY };
   }
-  overlayCanvas.mousedown(function(e) {
+  function onMouseDown(e) {
     center = getPosFromEvent(e);
-    alert(center.x);
-  });
+  }
+  function onMouseUp(e) {
+    var ctx = overlayCanvas[0].getContext('2d');
+    ctx.clearRect(0, 0, 800, 600);
+    overlayCanvas.hide();
+    overlayCanvas.unbind('mousedown', onMouseDown);
+    overlayCanvas.unbind('mouseup', onMouseUp);
+    overlayCanvas.unbind('mousemove', onMouseMove);
+  }
+  function onMouseMove(e) {
+    if(center != null) {
+      var ctx = overlayCanvas[0].getContext('2d');
+      var radius = distanceBetween(getPosFromEvent(e), center);
+      ctx.clearRect(0, 0, 800, 600);
+      ctx.fillStyle = 'rgba(0, 0, 255, 0.35)';
+      ctx.strokeStyle = 'rgba(0, 0, 255, 0.8)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(center.x, center.y, radius, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    }
+  }
+  overlayCanvas.mousedown(onMouseDown);
+  overlayCanvas.mouseup(onMouseUp);
+  overlayCanvas.mousemove(onMouseMove);
 }
 </script>
 <style type="text/css">
@@ -54,7 +83,8 @@ function createBoard() {
 {% block content %}
 <div style="position: relative; left: 0; top: 0;">
   <div id="map_canvas" style="position: relative; top: 0; left: 0;"></div>
-  <canvas id="overlay_canvas" style="position: absolute; top: 0; left: 70px;"></canvas>
+  <canvas id="overlay_canvas" width="800" height="600"
+          style="position: absolute; top: 0; left: 70px;"></canvas>
 </div>
 
 <div style="text-align: center; margin-top: 10px;">
