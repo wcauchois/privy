@@ -4,16 +4,61 @@
 <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyBABORh_FwIuw1Txbksp7VSy4gkdOVPc4M&sensor=false"></script>
 <script type="text/javascript">
 $(document).ready(function() {
+  var seattle = new google.maps.LatLng(47.60621, -122.332071);
   var options = {
-    center: new google.maps.LatLng(-34.397, 150.644),
+    center: seattle,
     zoom: 8,
     mapTypeId: google.maps.MapTypeId.ROADMAP
   };
   var map = new google.maps.Map(document.getElementById("map_canvas"), options);
+  new google.maps.Circle({
+    strokeColor: "#FF0000",
+    strokeOpacity: 0.8,
+    strokeWeight: 2,
+    fillColor: "#FF0000",
+    fillOpacity: 0.35,
+    map: map,
+    center: seattle,
+    radius: 50000
+  });
+  $("#overlay_canvas").hide();
 });
+function createBoard() {
+  var overlayCanvas = $("#overlay_canvas");
+  overlayCanvas.show();
+  var center = null;
+  function getPosFromEvent(e) {
+    var parentOffset = overlayCanvas.parent().offset();
+    var relX = e.pageX - parentOffset.left;
+    var relY = e.pageY - parentOffset.top;
+    return { x: relX - 70 /* because of the margin-left */, y: relY };
+  }
+  overlayCanvas.mousedown(function(e) {
+    center = getPosFromEvent(e);
+    alert(center.x);
+  });
+}
 </script>
+<style type="text/css">
+#map_canvas {
+  margin-top: 50px;
+  margin-left: 70px;
+}
+#map_canvas, #overlay_canvas {
+  width: 800px;
+  height: 600px;
+}
+</style>
 {% endblock %}
 
 {% block content %}
-<div id="map_canvas" style="width: 400px; height: 400px;"></div>
+<div style="position: relative; left: 0; top: 0;">
+  <div id="map_canvas" style="position: relative; top: 0; left: 0;"></div>
+  <canvas id="overlay_canvas" style="position: absolute; top: 0; left: 70px;"></canvas>
+</div>
+
+<div style="text-align: center; margin-top: 10px;">
+Select a message board by clicking a circle, or 
+<input type="submit" class="btn primary" value="Create a board" onclick="createBoard();" />
+</div>
 {% endblock %}
