@@ -24,7 +24,7 @@ DATABASES = {
     }
 }
 
-DATABASE_ROUTERS = ['privy.dbRouter']
+DATABASE_ROUTERS = ['privy.router']
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
