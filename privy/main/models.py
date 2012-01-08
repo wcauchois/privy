@@ -48,7 +48,7 @@ class PrivyContent(NamedDatedContent):
 """
 
 class Post(PrivyContent):
-    board = models.ForeignKey(blank=True, null=True)
+    locale = models.ForeignKey(blank=True, null=True)
     source_link = models.TextField(blank=True, null=True) 
     creator = models.ForeignKey()
     locale = models.ForeignKey()
