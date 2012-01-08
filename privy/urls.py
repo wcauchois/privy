@@ -9,4 +9,5 @@ urlpatterns = patterns('',
   url(r'^new_board$', 'main.views.new_board'),
   url(r'^get_boards$', 'main.views.get_boards'),
   url(r'^show_board/(?P<id>\d+)', 'main.views.show_board'),
+  url(r'^make_post/(?P<board_id>\d+)', 'main.views.make_post'),
 )

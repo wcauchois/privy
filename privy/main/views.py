@@ -36,10 +36,20 @@ def get_boards(request):
                                 lng__lte=max(left, right))
   return [board.to_dict() for board in boards]
 
+@csrf_exempt # XXX
+def make_post(request, board_id):
+  post = Post()
+  post.board = get_object_or_404(Board, pk=board_id)
+  post.content = request.POST['content']
+  post.save()
+  return redirect('/show_board/%s' % board_id)
+
 def show_board(request, id):
-  #locale = get_object_or_404(Locale, pk=board_id)
-  #Post.get(locale=locale)
+  board = get_object_or_404(Board, pk=id)
+  posts = Post.objects.filter(board=board)
   context = RequestContext(request, {
+    'board': board,
+    'posts': posts,
   })
   return render_to_response('show_board.html', context)
 

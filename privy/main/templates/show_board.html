@@ -1,1 +1,34 @@
 {% extends "base.html" %}
+
+{% block head %}
+<style type="text/css">
+.post {
+  border: 2px solid gray;
+  padding: 5px;
+  margin: 15px;
+  width: 540px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<h1>{{board.name}}</h1>
+
+{% for post in posts %}
+<div class="post">
+{{post.content}}
+<br>
+<em>Posted at {{post.date_created}}</em>
+</div>
+{% endfor %}
+
+<div>
+<form action="/make_post/{{board.id}}" method="POST">
+<textarea name="content" rows="4" style="width: 540px; margin-left: auto; margin-right: auto;"></textarea>
+<br>
+<input type="submit" value="Submit" class="btn primary" />
+</form>
+</div>
+
+{% endblock %}

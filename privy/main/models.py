@@ -16,7 +16,7 @@ class Board(models.Model):
            }
 
 class Post(models.Model):
-  locale = models.ForeignKey(Board, blank=False)
+  board = models.ForeignKey(Board, blank=False)
   date_created = models.DateTimeField(editable=False)
   content = models.TextField(null=True, blank=False)
 
