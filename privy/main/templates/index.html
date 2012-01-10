@@ -84,6 +84,77 @@ border-radius: 6px;
     font-family: 'Fugaz One';
     padding-top: 3px;
 }
+
+.bottomnav a {
+    color: whitesmoke;
+}
+
+.hidemessage:hover {
+    background: white;
+    color: #8AAAB2;
+}
+
+.buttons li > a {
+-moz-border-radius: 3px !important;
+-webkit-border-radius: 3px !important;
+background: #D8D8D8 url(http://qsf.cf.quoracdn.net/-ecce5129f3725e2e.gif) repeat-x top left;
+border: 1px solid #BBB;
+border-bottom: 1px solid #999;
+cursor: pointer;
+font-weight: bold;
+font-size: .95em !important;
+display: inline-block !important;
+padding: 4px 10px !important;
+text-align: center;
+text-shadow: 0 1px #F0F0F0;
+border-radius: 3px !important;
+color: grey !important;
+font-weight: 500 !important;
+margin: 3px;
+margin-top: 6px;
+}
+
+.buttons li a.action-loop-terminal {
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    background: #D8D8D8 url(http://qsf.cf.quoracdn.net/-ecce5129f3725e2e.gif) repeat-x top left !important;
+    border: 1px solid #BBB;
+    border-bottom: 1px solid #999;
+    cursor: pointer;
+    font-weight: 500 !important;
+    font-size: .9em;
+    display: inline-block;
+    padding: 3px 10px;
+    text-align: center;
+    text-shadow: 0 1px #F0F0F0;
+    border-image: initial;
+    color: white !important;
+}
+
+.buttons li > a:hover {
+border-bottom-color: grey;
+border-bottom-left-radius: 3px;
+border-bottom-right-radius: 3px;
+border-bottom-style: solid;
+border-bottom-width: 1px;
+border-left-color: lightgray;
+border-left-style: solid;
+border-left-width: 1px;
+border-right-color: lightgray;
+border-right-style: solid;
+border-right-width: 1px;
+border-top-color: lightgray;
+border-top-left-radius: 3px;
+border-top-right-radius: 3px;
+border-top-style: solid;
+border-top-width: 1px;
+color: black;
+}
+
+.hidemessage {
+    position: relative; top: -3px;margin-right:4px; font-size:11px; font-family:monospace; 
+        padding:3px 5px 3px 5px; border: 1px solid white; border-radius: 60px; text-align:center;
+}
     </style>
 
 
@@ -291,7 +362,7 @@ $(document).ready(function() {
     panControl: false,
     zoomControlOptions: {
         style: google.maps.ZoomControlStyle.DEFAULT,
-        position: google.maps.ControlPosition.BOTTOM_LEFT
+        position: google.maps.ControlPosition.LEFT_CENTER
     },
     zoom: 10,
     mapTypeIds: [google.maps.MapTypeId.ROADMAP, 'styled_map']
@@ -360,20 +431,33 @@ function createBoard() {
     color:  white;
     font-family: arial;
     font-size: 13px;float: left;
-    margin-top: 10px;
-">share the world's secrets!</span>
-          <ul class="nav" style="float:right">
-            <li class="active"><a href="#" id="add_locale" onclick="createBoard();">Add Locale</a></li>
-            <li><a href="#" style="color:white;">Find Locale</a></li>
-            <li><form class="pull-left" action="">
-                    <input type="text" placeholder="Search" style="height:13px; font-size:13px; padding: 7px 7px 4px 7px;">
+    margin-top: 10px;">share the world's secrets!</span>
+          <ul class="nav buttons" style="float:right">
+              <li><form class="pull-left" action="">
+                    <input type="text" value="Search" style="height:13px; font-size:13px; 
+                            padding: 7px 7px 4px 7px; outline: 0;
+                            margin-left: 10px;
+background-color: white;
+color: grey;
+text-shadow: 0 1px 0 white;
+border: 0;">
+                    <script>
+                        $("input[value='Search']").focus(function () {
+                            $(this).attr('value', '');
+                        });
+                    </script>
         </form></li>
+
+            <li><a href="#" style="color:white;">Find Locale</a></li>
+            <li class="active"><a href="#" id="add_locale" onclick="createBoard();">Add Locale</a></li>
         </ul>
         </div>
       </div>
     </div>
 
-<div style="width: 100%; display:block; background: #55665E; height: 40px; top: 35px;position: fixed;z-index: 10000;left: 0px;color: white;padding-top:;">
+<div style="width: 100%; display:block; background: #8AAAB2; 
+        height: 40px; top: 35px;position: fixed;z-index: 10000;
+        left: 0px;color: white;padding-top:;">
 <div class="content" style="
     width: 940px;
     margin-left: auto;
@@ -382,12 +466,36 @@ function createBoard() {
     font-size: 20px;
     margin-top: 9px;
 ">
-This is another topbar. We have lots of <a href="#" style="
+<span class = "hidemessage">✖</span>
+    <script>
+        $(".hidemessage").hover(function() {$(this).css('font-weight', 'bold')});
+    </script>
+    This is your first time here! Why don't you <a href="#" style="
     color: white;
     text-decoration: underline;
-">stuff to say!</a>
+">take the tour!</a>
 </div>
 </div>
+
+<div style="width: 100%; display:block; background: black; height: 40px; bottom: 0px;position: fixed;z-index: 10000;left: 0px;color: white;padding-top:;">
+      <div class="content" style="
+    width: 940px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+    font-size: 12px;
+    margin-top: 9px;
+">
+<div style="float:right">
+<ul class="nav bottomnav">
+<li><a href="#">Contact Us</a></li>
+<li><a href="#">Terms of Use</a></li>
+<li><a href="#">About</a></li>
+<li><a href="#">What is this?</a></li>
+<li><a href="#">Blog</a></li>
+</ul>
+</div></div>
+    </div>
 
     <!-- <div class="container"> -->
 
