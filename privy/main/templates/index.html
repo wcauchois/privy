@@ -1,6 +1,92 @@
 {% extends "base.html" %}
 
 {% block head %}
+<link href='http://fonts.googleapis.com/css?family=Fugaz+One' rel='stylesheet' type='text/css'>
+    <meta charset="utf-8">
+    <title>Bootstrap, from Twitter</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <!-- <link href='http://fonts.googleapis.com/css?family=Dynalight' rel='stylesheet' type='text/css'> -->
+<!-- <link href="http://fonts.googleapis.com/css?family=Leckerli+One:400normal&subset=all" rel="stylesheet" type="text/css"> -->
+    <link href="http://twitter.github.com/bootstrap/1.4.0/bootstrap.css" rel="stylesheet">
+        <script src="http://maps.forum.nu/MZoomControl.js"></script>
+        <link rel="shortcut icon" href="http://cyclo.ps/shebang.png">
+    <style type="text/css">
+      body {
+        background: #F2F2F2;
+      }
+    .board_title {
+        font-weight: bold;
+        font-size: 1.2em;
+     }
+     #map_canvas {
+     /* margin-top: 50px;
+      margin-left: 70px; */
+     position: absolute;
+     left:0px;
+     top:0px;
+     margin:0px;
+     margin-top:0px;
+     margin-left:0px;
+     display: block;
+     width: 100%;
+     height: 100%;
+ }
+.topbar div > ul a, .nav a {
+    font-size: 15px;
+line-height: 100%;
+padding: 10px;
+}
+
+.topbar {
+width: 100%;
+height: 35px;
+display:block;
+position: fixed;
+overflow: visible;
+top: 0;
+left: 0;
+right: 0;
+z-index: 10000;
+background-color: auto !important;
+}
+
+.fill {
+    width:100%;
+    height: 35px;
+    background: none !important;
+    background-image: none !important;
+    filter:none !important;
+
+    background-color: rgba(0, 0, 0, .7) !important;
+}
+
+.hero-unit {
+background-color: lightgray;
+margin-bottom: 35px;
+padding: 20px;
+-webkit-border-radius: 6px;
+-moz-border-radius: 6px;
+border-radius: 6px;
+}
+
+.topbar h3 a, .topbar .brand {
+    color: rgba(232, 65, 103, 1);
+    font-size: 25px;
+    text-transform: lowercase;
+    font-family: 'Fugaz One';
+    padding-top: 3px;
+}
+    </style>
+
+
 <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyBABORh_FwIuw1Txbksp7VSy4gkdOVPc4M&sensor=false"></script>
 <script type="text/javascript">
 var map;
@@ -13,6 +99,85 @@ var baseCircleParams = {
   fillColor: "#FF0000",
   fillOpacity: 0.35,
 };
+
+var stylesArray = [
+  {
+    featureType: "road.highway",
+    stylers: [
+      { hue: "#acdae4" }
+    ]
+  },{
+    featureType: "road.arterial",
+    stylers: [
+      { hue: "#ff918e" }
+    ]
+  },{
+    featureType: "road.local",
+    stylers: [
+      { hue: "#CCCCCC" }
+    ]
+  },{
+    featureType: "transit.line",
+    stylers: [
+      { hue: "#858965" }
+    ]
+  },{
+    featureType: "transit.station.rail",
+    stylers: [
+      { hue: "#bcb6ae" }
+    ]
+  },{
+    featureType: "administrative.country",
+    stylers: [
+      { hue: "#f9f4e8" }
+    ]
+  },{
+    featureType: "landscape.natural",
+    stylers: [
+      { hue: "#cdd684" }
+    ]
+  },{
+    featureType: "poi.park",
+    stylers: [
+      { hue: "#cdd684" }
+    ]
+  },{
+    featureType: "water",
+    stylers: [
+      { hue: "#bfd1df" }
+    ]
+  },{
+    featureType: "poi.place_of_worship",
+    stylers: [
+      { hue: "#e4e4e4" }
+    ]
+  },{
+    featureType: "poi.medical",
+    stylers: [
+      { hue: "#e4e4e4" }
+    ]
+  },{
+    featureType: "poi.attraction",
+    stylers: [
+      { hue: "#e4e4e4" }
+    ]
+  },{
+    featureType: "poi.business",
+    stylers: [
+      { hue: "#e4e4e4" }
+    ]
+  },{
+    featureType: "poi.sports_complex",    
+    stylers: [
+      { hue: "#e4e4e4" }
+    ]
+  }
+  ];
+
+var styledMapType = new google.maps.StyledMapType(stylesArray,
+    {name: "Styled Map"}); 
+    
+
 /* courtesy of <http://stackoverflow.com/questions/1714786/querystring-encoding-of-a-javascript-object> */
 function queryEncode(obj) {
   var str = [];
@@ -111,25 +276,38 @@ function updateBoards() {
     boardsDirty = false;
   }
 }
+
+
 $(document).ready(function() {
   var seattle = new google.maps.LatLng(47.60621, -122.332071);
   var options = {
     center: seattle,
-    zoom: 8,
-    mapTypeId: google.maps.MapTypeId.ROADMAP
+    disableDefaultUI: false,
+    zoomControl: true,
+    mapTypeControl: false,
+    scaleControl: false,
+    streetViewControl: false,
+    overviewMapControl: false,
+    panControl: false,
+    zoomControlOptions: {
+        style: google.maps.ZoomControlStyle.DEFAULT,
+        position: google.maps.ControlPosition.BOTTOM_LEFT
+    },
+    zoom: 10,
+    mapTypeIds: [google.maps.MapTypeId.ROADMAP, 'styled_map']
   };
   map = new google.maps.Map(document.getElementById("map_canvas"), options);
+  map.mapTypes.set('styled_map', styledMapType);
+  map.setMapTypeId('styled_map');
   function markDirty() { boardsDirty = true; }
   google.maps.event.addListener(map, 'center_changed', markDirty);
   google.maps.event.addListener(map, 'bounds_changed', markDirty);
   window.setInterval(updateBoards, 2000);
   google.maps.event.addListener(map, 'tilesloaded', updateBoards);
-  $("#done_editing").hide();
 });
 var doneEditing = null;
 function createBoard() {
-  $("#select_board").hide();
-  $("#done_editing").show();
+  $("#add_locale").html('Okay, I\'m Done!').attr('onclick', 'doneEditing();');
   var pendingCircle = new google.maps.Circle(mergeOptions(baseCircleParams, {
     strokeColor: '#0000FF',
     fillColor: "#0000FF",
@@ -153,38 +331,73 @@ function createBoard() {
     openInfoWindowOnInvisibleMarker(infoWindow, pendingCircle.getCenter());
     google.maps.event.addListener(infoWindow, 'closeclick', function(event) {
       pendingCircle.setMap(null);
-      $("#select_board").show();
+      $("#add_locale").html("Add Locale").attr('onclick', 'createBoard();');
     });
     pendingCircle.setEditable(false);
-    $("#done_editing").hide();
   }
 }
 </script>
-<style type="text/css">
-.board_title {
-  font-weight: bold;
-  font-size: 1.2em;
-}
-#map_canvas {
-  margin-top: 50px;
-  margin-left: 70px;
-  width: 800px;
-  height: 600px;
-}
-</style>
+<link href='http://fonts.googleapis.com/css?family=Oldenburg' rel='stylesheet' type='text/css'>
 {% endblock %}
 
 {% block content %}
-<div id="map_canvas" style="position: relative; top: 0; left: 0;"></div>
 
-<div style="text-align: center; margin-top: 10px;">
-  <div id="select_board">
-    Select a message board by clicking a circle, or 
-    <input type="submit" class="btn primary" value="Create a board" onclick="createBoard();" />
-  </div>
-  <div id="done_editing">
-    Modify the blue circle above, then click here:
-    <input type="submit" class="btn primary" value="Done editing" onclick="doneEditing();" />
-  </div>
-</div>
+    <script>
+        $(document).ready(
+            function () {
+                initialize();
+            }
+        );
+    </script>
+    <div class="topbar">
+      <div class="fill">
+        <div class="container">
+            <a class="brand" href="#">
+                <!-- <span style="float:left; margin-right: 5px; margin-top:1px; opacity:.9;"><img src="http://cyclo.ps/shebang.png" height="25px" width="25px" /></span> -->
+                <span style="float:right;">Privy</span></a>
+          <div></div>
+          <ul class="nav" style="">
+            <li class="active"><a href="#" id='add_locale' onclick="createBoard();">Add Locale</a></li>
+            <li><a href="#" style="color:white;">Find Locale</a></li>
+            <li><form class="pull-left" action="">
+                    <input type="text" placeholder="Search" style="height:13px; font-size:13px; padding: 7px 7px 4px 7px;">
+        </form></li>
+        </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- <div class="container"> -->
+
+      <!-- Main hero unit for a primary marketing message or call to action -->
+<!--  <div class="hero-unit"> -->
+<!-- <p> --><div id="map_canvas"></div> <!--</p> -->
+          <!-- </div> -->
+      <!-- Example row of columns
+      <div class="row">
+        <div class="span6">
+          <h2>Heading</h2>
+          <p>Etiam porta sem malesuada magna mollis euismod. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit.</p>
+          <p><a class="btn" href="#">View details &raquo;</a></p>
+        </div>
+        <div class="span5">
+          <h2>Heading</h2>
+           <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
+          <p><a class="btn" href="#">View details &raquo;</a></p>
+       </div>
+        <div class="span5">
+          <h2>Heading</h2>
+          <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
+          <p><a class="btn" href="#">View details &raquo;</a></p>
+        </div>
+      </div>
+
+      <footer>
+        <p>&copy; Privy, Inc. 2011</p>
+      </footer>
+
+    </div>  /container -->
+
+
+
 {% endblock %}
