@@ -65,7 +65,7 @@ background-color: auto !important;
     background-image: none !important;
     filter:none !important;
 
-    background-color: rgba(0, 0, 0, .7) !important;
+    background-color: rgba(0, 0, 0, 1) !important;
 }
 
 .hero-unit {
@@ -349,15 +349,21 @@ function createBoard() {
             }
         );
     </script>
-    <div class="topbar">
+<div class="topbar">
       <div class="fill">
         <div class="container">
             <a class="brand" href="#">
                 <!-- <span style="float:left; margin-right: 5px; margin-top:1px; opacity:.9;"><img src="http://cyclo.ps/shebang.png" height="25px" width="25px" /></span> -->
-                <span style="float:right;">Privy</span></a>
-          <div></div>
-          <ul class="nav" style="">
-            <li class="active"><a href="#" id='add_locale' onclick="createBoard();">Add Locale</a></li>
+                <span style="float:right;">Privy</span>
+</a>
+          <span style="
+    color:  white;
+    font-family: arial;
+    font-size: 13px;float: left;
+    margin-top: 10px;
+">share the world's secrets!</span>
+          <ul class="nav" style="float:right">
+            <li class="active"><a href="#" id="add_locale" onclick="createBoard();">Add Locale</a></li>
             <li><a href="#" style="color:white;">Find Locale</a></li>
             <li><form class="pull-left" action="">
                     <input type="text" placeholder="Search" style="height:13px; font-size:13px; padding: 7px 7px 4px 7px;">
@@ -366,6 +372,22 @@ function createBoard() {
         </div>
       </div>
     </div>
+
+<div style="width: 100%; display:block; background: #55665E; height: 40px; top: 35px;position: fixed;z-index: 10000;left: 0px;color: white;padding-top:;">
+<div class="content" style="
+    width: 940px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    font-size: 20px;
+    margin-top: 9px;
+">
+This is another topbar. We have lots of <a href="#" style="
+    color: white;
+    text-decoration: underline;
+">stuff to say!</a>
+</div>
+</div>
 
     <!-- <div class="container"> -->
 
